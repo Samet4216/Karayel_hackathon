@@ -99,25 +99,26 @@
 
 | Bildirim 1 | Bildirim 2 | Geçmiş |
 |---|---|---|
-| ![Bildirim 1](screenshots/bildiri.png) | ![Bildirim 2](screenshots/bildiri2.png) | ![Geçmiş](screenshots/geçmiş.png) |
+| ![Bildirim 1](screenshots/bildiri.png) | ![Bildirim 2](screenshots/bildiri2.png) | 
 
 ### 🌙 Tema Seçenekleri
 
 | Açık Tema | Koyu Tema |
 |---|---|
-| ![Açık Tema](screenshots/karanlık_tema.png) | ![Koyu Tema](screenshots/admin_paneli_karanlık_tema.png) |
+| ![Açık Tema](screenshots/ana_menü.png) | ![Koyu Tema](screenshots/karanlık_tema.png) |
 
 ### 🛠️ İdari Panel
 
 | Admin Paneli | Kullanıcı Yönetimi | İşlem Kaydı |
 |---|---|---|
-| ![Admin Paneli](screenshots/admin_paneli.png) | ![Kullanıcı](screenshots/kullanıcı.png) | ![İşlem Kaydı](screenshots/işlem%20kaydı.png) |
+| ![Admin Paneli](screenshots/admin_paneli.png) | ![Geçmiş](screenshots/geçmiş.png) |
+ ![Kullanıcı](screenshots/kullanıcı.png) | ![İşlem Kaydı](screenshots/işlem%20kaydı.png) | 
 
 ### ✅ İşlemler
 
 | Onay Bekleyen | Kabul Et | Reddet / Sil | Düzenle / Ekle |
 |---|---|---|---|
-| ![Onay](screenshots/onay.png) | ![Kabul](screenshots/kabul.png) | ![Sil](screenshots/sil.png) | ![Düzenle](screenshots/düzenle.png) |
+| ![Onay](screenshots/onay.png) | ![Kabul](screenshots/kabul.png) | ![Sil](screenshots/sil.png) | ![Düzenle](screenshots/düzenle.png) | ![Ekle](screenshots/ekle.png) |
 
 ---
 
