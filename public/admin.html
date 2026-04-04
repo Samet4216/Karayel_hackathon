@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yönetici Paneli - Akıllı Atık Yönetim Sistemi</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        /* Additional styles for admin dashboard */
+        .admin-header {
+            background-color: var(--dark-gray);
+            color: var(--background-white);
+            padding: var(--spacing-md) 0;
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .admin-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            background-color: var(--background-white);
+            padding: var(--spacing-md);
+            border-radius: 8px;
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .admin-tab {
+            padding: var(--spacing-sm) var(--spacing-md);
+            background-color: var(--light-gray);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--font-primary);
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .admin-tab.active {
+            background-color: var(--nilufer-blue);
+            color: var(--background-white);
+        }
+        
+        .admin-tab:focus,
+        button:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        
+        .admin-tab:active,
+        button:active {
+            outline: none;
+        }
+        
+        .simulation-panel {
+            background-color: var(--background-white);
+            padding: var(--spacing-lg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+            color: var(--dark-gray);
+        }
+        
+        .input-group input,
+        .input-group select {
+            padding: 0.75rem;
+            border: 2px solid var(--light-gray);
+            border-radius: 4px;
+            font-family: var(--font-primary);
+        }
+        
+        .fleet-table {
+            width: 100%;
+            margin: var(--spacing-lg) 0;
+        }
+        
+        .fleet-table th {
+            text-align: left;
+            padding: var(--spacing-sm);
+            background-color: var(--nilufer-blue);
+            color: var(--background-white);
+        }
+        
+        .fleet-table td {
+            padding: var(--spacing-sm);
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .fleet-change-input {
+            width: 80px;
+            padding: 0.5rem;
+            text-align: center;
+            border: 2px solid var(--light-gray);
+            border-radius: 4px;
+        }
+        
+        .run-simulation-btn {
+            background-color: var(--nilufer-green);
+            color: var(--background-white);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: var(--spacing-lg);
+            transition: all 0.3s;
+        }
+        
+        .run-simulation-btn:hover {
+            background-color: #008F45;
+            transform: translateY(-2px);
+        }
+        
+        .results-panel {
+            display: none;
+            margin-top: var(--spacing-xl);
+        }
+        
+        .results-panel.visible {
+            display: block;
+        }
+        
+        .recommendation-box {
+            padding: var(--spacing-lg);
+            border-radius: 8px;
+            margin-bottom: var(--spacing-lg);
+            border-left: 5px solid;
+        }
+        
+        .recommendation-box.recommended {
+            background-color: #D4EDDA;
+            border-color: var(--success-green);
+        }
+        
+        .recommendation-box.neutral {
+            background-color: #FFF3CD;
+            border-color: var(--warning-yellow);
+        }
+        
+        .recommendation-box.not-recommended {
+            background-color: #F8D7DA;
+            border-color: var(--error-red);
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+        }
+        
+        .metric-card {
+            background-color: var(--background-white);
+            padding: var(--spacing-md);
+            border-radius: 8px;
+            border: 2px solid var(--light-gray);
+            text-align: center;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--medium-gray);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--nilufer-blue);
+        }
+        
+        .metric-change {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: var(--spacing-xs);
+        }
+        
+        .metric-change.positive {
+            color: var(--success-green);
+        }
+        
+        .metric-change.negative {
+            color: var(--error-red);
+        }
+        
+        /* Dark Mode Theme for Admin */
+        body.admin-dark-mode {
+            background: #1e1e1e;
+            color: #e0e0e0;
+        }
+        body.admin-dark-mode .admin-header {
+            background-color: #1a1a1a;
+            border-bottom: 3px solid #0066B3;
+        }
+        body.admin-dark-mode .admin-header h1,
+        body.admin-dark-mode .admin-header p {
+            color: #66c2ff;
+        }
+        body.admin-dark-mode .admin-tabs,
+        body.admin-dark-mode .simulation-panel {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+        }
+        body.admin-dark-mode .admin-tab {
+            background-color: #383838;
+            color: #e0e0e0;
+            border: 1px solid #555;
+        }
+        body.admin-dark-mode .admin-tab.active {
+            background-color: #0066B3;
+            color: white;
+        }
+        body.admin-dark-mode h2,
+        body.admin-dark-mode h3 {
+            color: #66c2ff;
+        }
+        body.admin-dark-mode .input-group label {
+            color: #e0e0e0;
+        }
+        body.admin-dark-mode .input-group input,
+        body.admin-dark-mode .input-group select,
+        body.admin-dark-mode .fleet-change-input {
+            background-color: #383838;
+            color: #e0e0e0;
+            border-color: #555;
+        }
+        body.admin-dark-mode .fleet-table th {
+            background-color: #0066B3;
+        }
+        body.admin-dark-mode .fleet-table td {
+            border-bottom-color: #555;
+        }
+        body.admin-dark-mode .run-simulation-btn {
+            background-color: #00A651;
+        }
+        body.admin-dark-mode .run-simulation-btn:hover {
+            background-color: #008F45;
+        }
+        body.admin-dark-mode .metric-card {
+            background-color: #383838;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+        body.admin-dark-mode .metric-value {
+            color: #66c2ff;
+        }
+        body.admin-dark-mode a.e-belediye-button:hover {
+            background-color: #008F45;
+        }
+
+        /* History Report Card Styles - Dark Mode */
+        body.admin-dark-mode .history-report-card {
+            background: #2a3f5f;
+            border: 2px solid #3d5580;
+            color: #e0e0e0;
+        }
+        body.admin-dark-mode .history-report-card:hover {
+            background: #354556;
+            border-color: #4a6fa5;
+        }
+        body.admin-dark-mode #historyDetailPanel {
+            background: #2d2d2d;
+            border: 2px solid #3d5580;
+            color: #e0e0e0;
+        }
+        body.admin-dark-mode #historyDetailPanel #detailNotes {
+            background: #1a2d42;
+            border-left-color: #66c2ff;
+            color: #e0e0e0;
+        }
+        body.admin-dark-mode #historyDetailPanel strong {
+            color: #66c2ff;
+        }
+        body.admin-dark-mode #historyDetailPanel span {
+            color: #e0e0e0;
+        }
+        body.admin-dark-mode #historyDetailPanel img {
+            border: 2px solid #3d5580;
+        }
+
+        /* History Section Styles - Dark Mode */
+        body.admin-dark-mode #history-tab p {
+            color: #b0b0b0;
+        }
+        body.admin-dark-mode #history-tab .simulation-panel {
+            background: #2d2d2d;
+        }
+
+        /* Radio Buttons - Dark Mode */
+        body.admin-dark-mode label {
+            color: #e0e0e0;
+        }
+        body.admin-dark-mode input[type="radio"] {
+            accent-color: #0066B3;
+        }
+
+        /* Pending Section Empty State - Dark Mode */
+        body.admin-dark-mode #reportsList > div[style*="text-align: center"] {
+            color: #888 !important;
+        }
+        
+        /* Container-based History Styles - Dark Mode */
+        body.admin-dark-mode #selectedContainerInfo {
+            background: #1a3a52 !important;
+            border: 2px solid #3d5580 !important;
+            color: #e0e0e0 !important;
+        }
+        body.admin-dark-mode #selectedContainerInfo strong {
+            color: #66c2ff;
+        }
+        
+        /* Container Search Input - Dark Mode */
+        body.admin-dark-mode #containerSearchInput {
+            background: #2d2d2d !important;
+            border-color: #3d5580 !important;
+            color: #e0e0e0 !important;
+        }
+        body.admin-dark-mode #containerSearchInput::placeholder {
+            color: #888;
+        }
+        
+        /* Light Mode - Container Search */
+        #containerSearchInput {
+            background: #ffffff;
+            border: 2px solid #ddd;
+            color: #333;
+        }
+        #containerSearchInput::placeholder {
+            color: #999;
+        }
+        
+        /* Light Mode - Date Tabs */
+        .container-date-tab {
+            background: #e8e8e8 !important;
+            color: #333 !important;
+            border: 1px solid #ccc !important;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .container-date-tab:hover {
+            background: #d0d0d0 !important;
+        }
+        .container-date-tab.active-date-tab {
+            background: #0066B3 !important;
+            color: white !important;
+            border: none !important;
+        }
+        .container-date-tab.active-date-tab:hover {
+            background: #004d8c !important;
+        }
+        .btn-all-dates {
+            background: #0066B3 !important;
+            color: white !important;
+            border: none !important;
+        }
+        .btn-all-dates:hover {
+            background: #004d8c !important;
+        }
+        
+        /* Dark Mode - Date Tabs */
+        body.admin-dark-mode .container-date-tab {
+            background: #384d5c !important;
+            color: #e0e0e0 !important;
+            border: 1px solid #4a6fa5 !important;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        body.admin-dark-mode .container-date-tab:hover {
+            background: #4a6fa5 !important;
+        }
+        body.admin-dark-mode .container-date-tab.active-date-tab {
+            background: #0066B3 !important;
+            color: white !important;
+            border: none !important;
+        }
+        body.admin-dark-mode .container-date-tab.active-date-tab:hover {
+            background: #004d8c !important;
+        }
+        body.admin-dark-mode .btn-all-dates {
+            background: #0066B3 !important;
+            color: white !important;
+            border: none !important;
+        }
+        body.admin-dark-mode .btn-all-dates:hover {
+            background: #004d8c !important;
+        }
+        
+        #selectedContainerInfo {
+            background: #f0f7ff !important;
+            border: 2px solid #b3d9ff !important;
+            color: #333 !important;
+        }
+        #selectedContainerInfo strong {
+            color: #0066B3;
+        }
+        
+        /* Search/Clear Buttons - Light Mode */
+        .btn-search-container {
+            background: #0066B3 !important;
+            color: white !important;
+        }
+        .btn-search-container:hover {
+            background: #004d8c !important;
+        }
+        .btn-clear-container {
+            background: #ddd !important;
+            color: #333 !important;
+        }
+        .btn-clear-container:hover {
+            background: #c0c0c0 !important;
+        }
+        
+        /* Search/Clear Buttons - Dark Mode */
+        body.admin-dark-mode .btn-search-container {
+            background: #0066B3 !important;
+            color: white !important;
+        }
+        body.admin-dark-mode .btn-search-container:hover {
+            background: #004d8c !important;
+        }
+        body.admin-dark-mode .btn-clear-container {
+            background: #555 !important;
+            color: #e0e0e0 !important;
+        }
+        body.admin-dark-mode .btn-clear-container:hover {
+            background: #666 !important;
+        }
+        
+        /* History Placeholder - Common */
+        #historyPlaceholder {
+            color: #666;
+        }
+        body.admin-dark-mode #historyPlaceholder {
+            color: #888;
+        }
+        
+        /* Container Management Tab - Light Mode */
+        #containerEditPanel {
+            background: #f0f7ff !important;
+            border: 2px solid #0066B3 !important;
+        }
+        #containerEditPanel h3 {
+            color: #0066B3;
+        }
+        #containerEditPanel label {
+            color: #0066B3;
+        }
+        #containerUpdatePlaceholder {
+            color: #666;
+        }
+        
+        /* Container Management Tab - Dark Mode */
+        body.admin-dark-mode #containerEditPanel {
+            background: #1a3a52 !important;
+            border: 2px solid #3d5580 !important;
+        }
+        body.admin-dark-mode #containerEditPanel h3 {
+            color: #66c2ff;
+        }
+        body.admin-dark-mode #containerEditPanel label {
+            color: #66c2ff;
+        }
+        body.admin-dark-mode #containerEditPanel input {
+            background: #2d2d2d !important;
+            border-color: #3d5580 !important;
+            color: #e0e0e0 !important;
+        }
+        body.admin-dark-mode #containerEditPanel input[readonly] {
+            background: #1a2d42 !important;
+            color: #999 !important;
+        }
+        body.admin-dark-mode #containerEditPanel select {
+            background: #2d2d2d !important;
+            border-color: #3d5580 !important;
+            color: #e0e0e0 !important;
+        }
+        body.admin-dark-mode #containerUpdatePlaceholder {
+            color: #888;
+        }
+        
+        /* Container Add Panel - Light Mode */
+        #containerAddPanel {
+            background: #f0fff4 !important;
+            border: 2px solid #00A651 !important;
+        }
+        #containerAddPanel h3 {
+            color: #00A651;
+        }
+        #containerAddPanel label {
+            color: #00A651;
+        }
+        #containerAddPanel input,
+        #containerAddPanel select {
+            background: #ffffff;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+        
+        /* Container Add Panel - Dark Mode */
+        body.admin-dark-mode #containerAddPanel {
+            background: #0a3d1a !important;
+            border: 2px solid #3d9950 !important;
+        }
+        body.admin-dark-mode #containerAddPanel h3 {
+            color: #66ff99;
+        }
+        body.admin-dark-mode #containerAddPanel label {
+            color: #66ff99;
+        }
+        body.admin-dark-mode #containerAddPanel input,
+        body.admin-dark-mode #containerAddPanel select {
+            background: #1a2d1f !important;
+            border-color: #3d7050 !important;
+            color: #e0e0e0 !important;
+        }
+        
+        /* Add/Delete Container Buttons */
+        .btn-add-container {
+            background: #00A651 !important;
+        }
+        .btn-add-container:hover {
+            background: #008F45 !important;
+        }
+        .btn-delete-container {
+            background: #E74C3C !important;
+        }
+        .btn-delete-container:hover {
+            background: #C0392B !important;
+        }
+        
+        /* Container Search Input - Dark Mode */
+        body.admin-dark-mode #containerUpdateSearchInput {
+            background: #2d2d2d !important;
+            border-color: #3d5580 !important;
+            color: #e0e0e0 !important;
+        }
+        body.admin-dark-mode #containerUpdateSearchInput::placeholder {
+            color: #999 !important;
+        }
+        
+        /* Dark Mode Button Colors */
+        body.admin-dark-mode .btn-add-container {
+            background: #00A651 !important;
+        }
+        body.admin-dark-mode .btn-add-container:hover {
+            background: #008F45 !important;
+        }
+        body.admin-dark-mode .btn-delete-container {
+            background: #E74C3C !important;
+        }
+        body.admin-dark-mode .btn-delete-container:hover {
+            background: #C0392B !important;
+        }
+        
+        /* Admin Logs Tab - Dark Mode */
+        #deleteLogContainerId {
+            background: #ffffff;
+            border: 2px solid #ddd;
+            color: #333;
+        }
+        body.admin-dark-mode #deleteLogContainerId {
+            background: #2d2d2d !important;
+            border-color: #3d5580 !important;
+            color: #e0e0e0 !important;
+        }
+        body.admin-dark-mode #deleteLogContainerId::placeholder {
+            color: #999 !important;
+        }
+        body.admin-dark-mode #deleteContainerId {
+            background: #2d2d2d !important;
+            border-color: #3d5580 !important;
+            color: #e0e0e0 !important;
+        }
+        body.admin-dark-mode #deleteContainerId::placeholder {
+            color: #999 !important;
+        }
+        body.admin-dark-mode #adminLogsList {
+            background: #1a1a1a !important;
+            border-color: #333 !important;
+        }
+        
+        /* Delete Container Panel */
+        .delete-container-panel {
+            background: #fff3f3;
+            border: 2px solid #E74C3C;
+        }
+        body.admin-dark-mode .delete-container-panel {
+            background: #3d1a1a !important;
+            border-color: #7d3a3a !important;
+        }
+        
+        /* Report Card Styles */
+        .report-card {
+            background-color: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 20px;
+        }
+        body.admin-dark-mode .report-card {
+            background-color: #383838;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+        body.admin-dark-mode .report-card div[style*="background: #f0f7ff"] {
+            background-color: #1a2d42 !important;
+            border-color: #66c2ff !important;
+        }
+        body.admin-dark-mode .report-content {
+            color: #e0e0e0;
+        }
+        .report-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            text-align: center;
+            color: #999;
+        }
+        body.admin-dark-mode .report-image {
+            background: #555;
+            color: #bbb;
+        }
+        .report-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .report-content {
+            display: flex;
+            flex-direction: column;
+        }
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .report-header h3 {
+            margin: 0;
+            color: #0066B3;
+        }
+        body.admin-dark-mode .report-header h3 {
+            color: #66c2ff;
+        }
+        .report-status {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #ffc107;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+        }
+        .report-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .info-row {
+            font-size: 14px;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        body.admin-dark-mode .info-label {
+            color: #66c2ff;
+        }
+        .info-value {
+            color: #666;
+            font-size: 13px;
+        }
+        body.admin-dark-mode .info-value {
+            color: #b0b0b0;
+        }
+        .fill-comparison {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f0f7ff;
+            border-radius: 6px;
+        }
+        body.admin-dark-mode .fill-comparison {
+            background: #2c3e50;
+        }
+        .fill-item {
+            flex: 1;
+            text-align: center;
+        }
+        .fill-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        body.admin-dark-mode .fill-label {
+            color: #b0b0b0;
+        }
+        .fill-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0066B3;
+        }
+        body.admin-dark-mode .fill-value {
+            color: #66c2ff;
+        }
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn-approve,
+        .btn-reject {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+        .btn-approve:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-reject:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .btn-theme {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .btn-theme:hover {
+            background: #c0392b;
+        }
+        body.admin-dark-mode .btn-theme {
+            background: #e74c3c;
+            color: white;
+        }
+        body.admin-dark-mode .btn-theme:hover {
+            background: #c0392b;
+        }
+        
+        /* ACİL MAHALLE ANIMASYONU */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 15px rgba(255, 0, 0, 0.8), 0 2px 6px rgba(0,0,0,0.3);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(255, 0, 0, 1), 0 2px 6px rgba(0,0,0,0.3);
+                transform: scale(1.1);
+            }
+            100% {
+                box-shadow: 0 0 15px rgba(255, 0, 0, 0.8), 0 2px 6px rgba(0,0,0,0.3);
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="header-logo">
+                <img src="assets/nilufer-logo.png" alt="Nilüfer Belediyesi Logo" class="logo-image">
+                <span class="logo-text">Nilüfer Belediyesi - Yönetici Paneli</span>
+            </div>
+            <div class="header-action">
+                <a href="index.html" class="e-belediye-button">Vatandaş Paneli</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-header">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>Operasyon Yöneticisi Kontrol Paneli</h1>
+                    <p>Filo simülasyonu ve sistem performans analizi</p>
+                </div>
+                <button onclick="toggleAdminDarkMode()" class="btn-theme" title="Karanlık Mod">🌙</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- TABS -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="showAdminTab('pending')">⏳ Onay Bekleyen</button>
+            <button class="admin-tab" onclick="showAdminTab('history')">📋 Bildiri Geçmişi</button>
+            <button class="admin-tab" onclick="showAdminTab('containers')">📦 Konteyner Yönetimi</button>
+            <button class="admin-tab" onclick="showAdminTab('users')">👥 Kullanıcılar</button>
+            <button class="admin-tab" onclick="showAdminTab('logs')">📝 Admin İşlem Kaydı</button>
+        </div>
+
+        <!-- PENDING REPORTS TAB -->
+        <div id="pending-tab" class="tab-content" style="display: block;">
+            <div class="simulation-panel">
+                <h2>⏳ Onay Bekleyen Kullanıcı Bildirimleri</h2>
+                <p>Kullanıcıların gönderdiği doluluk raporlarını inceleyin ve onaylayın/reddedin</p>
+                
+                <div id="reportsList" style="margin-top: 20px;">
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <p>Yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORT HISTORY TAB -->
+        <div id="history-tab" class="tab-content" style="display: none;">
+            <div class="simulation-panel">
+                <h2>📋 Bildiri Geçmişi (Konteyner Bazlı)</h2>
+                <p>Her konteynır için onaylanan ve reddedilen bildiriler</p>
+                
+                <!-- Konteyner Arama -->
+                <div style="margin: 20px 0; display: flex; gap: 10px;">
+                    <input type="number" id="containerSearchInput" placeholder="Konteyner ID ile ara (örn: 1, 2, 100)..." 
+                           style="flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
+                    <button class="btn-search-container" onclick="searchContainerHistory()" style="padding: 12px 25px; background: #0066B3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔍 Ara</button>
+                    <button class="btn-clear-container" onclick="clearContainerSearch()" style="padding: 12px 25px; background: #ddd; color: #333; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Temizle</button>
+                </div>
+                
+                <!-- Seçilen Konteyner Bilgileri -->
+                <div id="selectedContainerInfo" style="background: #f0f7ff; padding: 15px; border-radius: 6px; margin: 15px 0; display: none;">
+                    <strong>Seçili Konteyner:</strong> <span id="selectedContainerId">#1</span> - 
+                    <span id="selectedContainerType">770lt</span>
+                </div>
+                
+                <!-- Konteyner Basında Sekmeleri (Dinamik) -->
+                <div id="containerTabsContainer" style="display: none; margin: 20px 0;">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+                        <button class="container-date-tab btn-all-dates active-date-tab" onclick="switchDateTab(this)" data-date="all" 
+                                style="padding: 10px 15px; background: #0066B3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            Tümü
+                        </button>
+                        <div id="dateTabs" style="display: contents;"></div>
+                    </div>
+                    
+                    <!-- Onaylanan/Reddedilen Filtresi -->
+                    <div style="margin: 15px 0;">
+                        <label style="margin-right: 20px; cursor: pointer;">
+                            <input type="radio" name="containerStatusFilter" value="all" checked onchange="filterContainerReports()">
+                            📊 Tümü
+                        </label>
+                        <label style="margin-right: 20px; cursor: pointer;">
+                            <input type="radio" name="containerStatusFilter" value="approved" onchange="filterContainerReports()">
+                            ✅ Onaylanan
+                        </label>
+                        <label style="cursor: pointer;">
+                            <input type="radio" name="containerStatusFilter" value="rejected" onchange="filterContainerReports()">
+                            ❌ Reddedilen
+                        </label>
+                    </div>
+                    
+                    <!-- Raporlar Listesi -->
+                    <div id="containerReportsList" style="margin-top: 20px;"></div>
+                </div>
+                
+                <div id="historyPlaceholder" style="text-align: center; padding: 40px; color: #666; display: flex; align-items: center; justify-content: center;">
+                    <p>🔍 Konteyner araması yaparak bildirileri görüntüleyin</p>
+                </div>
+            </div>
+        </div>
+
+    <!-- CONTAINER MANAGEMENT TAB -->
+    <div id="containers-tab" class="tab-content" style="display: none;">
+        <div class="simulation-panel">
+            <h2>📦 Konteyner Yönetimi</h2>
+            <p>Konteynır bilgilerini güncelle, ekle ve sil</p>
+            
+            <!-- Konteyner Arama -->
+            <div style="margin: 20px 0; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap;">
+                <input type="number" id="containerUpdateSearchInput" placeholder="Konteyner ID ile ara (örn: 1, 2, 100)..." 
+                       style="width: 300px; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
+                <button class="btn-search-container" onclick="searchContainerForUpdate()" style="padding: 12px 25px; background: #0066B3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap;">🔍 Ara</button>
+                <button class="btn-clear-container" onclick="clearContainerUpdateSearch()" style="padding: 12px 25px; background: #ddd; color: #333; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap;">Temizle</button>
+                <button class="btn-add-container" onclick="showAddContainerForm()" style="padding: 12px 25px; background: #00A651; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap;">➕ Konteyner Ekle</button>
+            </div>
+            
+            <!-- Konteyner Silme Paneli -->
+            <div class="delete-container-panel" style="margin: 20px 0; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 15px; border-radius: 6px;">
+                <input type="number" id="deleteContainerId" placeholder="Silinecek Konteyner ID'sini giriniz..." 
+                       style="width: 300px; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
+                <button onclick="deleteContainerDirect()" style="padding: 12px 25px; background: #E74C3C; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap;">🗑️ Sil</button>
+            </div>
+            
+            <!-- Konteyner Ekleme Paneli -->
+            <div id="containerAddPanel" style="display: none; margin: 20px 0; border: 2px solid #00A651; border-radius: 8px; padding: 20px; background: #f0fff4;">
+                <h3 style="color: #00A651; margin-bottom: 15px;">➕ Yeni Konteyner Ekle</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <!-- Konteyner Türü -->
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #00A651;">Konteyner Türü:</label>
+                        <input type="text" id="addContainerType" placeholder="Örn: 770lt, Cam, Plastik..." 
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    </div>
+                    
+                    <!-- Kapasite -->
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #00A651;">Kapasite (Litre):</label>
+                        <input type="number" id="addContainerCapacity" placeholder="Örn: 770, 1100..." 
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    </div>
+                    
+                    <!-- Mahalle -->
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #00A651;">Mahalle:</label>
+                        <select id="addContainerNeighborhood" 
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                            <option value="">Mahalle seçiniz...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Konum Bilgileri -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #00A651;">Latitude (İsteğe Bağlı):</label>
+                        <input type="number" id="addContainerLat" placeholder="Örn: 38.7469" step="0.0001"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #00A651;">Longitude (İsteğe Bağlı):</label>
+                        <input type="number" id="addContainerLon" placeholder="Örn: 29.0213" step="0.0001"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    </div>
+                </div>
+                
+                <!-- Butonlar -->
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button onclick="cancelAddContainerForm()" style="padding: 12px 25px; background: #ddd; color: #333; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">İptal</button>
+                    <button onclick="saveNewContainer()" style="padding: 12px 25px; background: #00A651; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">✓ Ekle</button>
+                </div>
+            </div>
+            
+            <!-- Konteyner Düzenleme Paneli -->
+            <div id="containerEditPanel" style="display: none; margin: 20px 0; border: 2px solid #0066B3; border-radius: 8px; padding: 20px; background: #f0f7ff;">
+                <h3 style="color: #0066B3; margin-bottom: 15px;">Konteyner #<span id="editContainerId"></span> - Düzenle</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <!-- Konteyner Türü -->
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0066B3;">Konteyner Türü:</label>
+                        <input type="text" id="editContainerType" placeholder="Örn: Genel, Cam, Plastik..." 
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    </div>
+                    
+                    <!-- Kapasite -->
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0066B3;">Kapasite (Litre):</label>
+                        <input type="number" id="editContainerCapacity" placeholder="Örn: 770, 1100..." 
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    </div>
+                </div>
+                
+                <!-- Mahalle Seçimi -->
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0066B3;">Mahalle:</label>
+                    <select id="editContainerNeighborhood" 
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        <option value="">Mahalle seçiniz...</option>
+                    </select>
+                </div>
+                
+                <!-- Mevcut Bilgiler (Salt Okunur) -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Doluluk Oranı:</label>
+                        <input type="text" id="editContainerFillLevel" readonly 
+                               style="width: 100%; padding: 10px; background: #e8e8e8; border: 1px solid #ddd; border-radius: 4px; color: #666;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #666;">Durum:</label>
+                        <input type="text" id="editContainerStatus" readonly 
+                               style="width: 100%; padding: 10px; background: #e8e8e8; border: 1px solid #ddd; border-radius: 4px; color: #666;">
+                    </div>
+                </div>
+                
+                <!-- Butonlar -->
+                <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;">
+                    <button onclick="clearContainerUpdateSearch()" style="padding: 12px 25px; background: #ddd; color: #333; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">İptal</button>
+                    <button onclick="saveContainerUpdates()" style="padding: 12px 25px; background: #00A651; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">✓ Kaydet</button>
+                </div>
+            </div>
+            
+            <div id="containerUpdatePlaceholder" style="text-align: center; padding: 40px; color: #666; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <p>🔍 Konteyner araması yaparak bilgilerini düzenleyin</p>
+                <p style="font-size: 12px; margin-top: 15px; color: #999;">
+                    <strong>Mevcut Konteynırlar:</strong> <span id="containerCountInfo">Yükleniyor...</span><br>
+                    <strong>Örnek ID'ler:</strong> <span id="containerExamplesInfo">1, 2, 3</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- USERS TAB -->
+    <div id="users-tab" class="tab-content" style="display: none;">
+        <div class="simulation-panel">
+            <h2>👥 Kayıtlı Kullanıcılar</h2>
+            <p>Sisteme kayıtlı tüm kullanıcıların bilgileri ve raporlama istatistikleri</p>
+            
+            <div id="usersList" style="margin-top: 20px;">
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <p>Yükleniyor...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN LOGS TAB -->
+    <div id="logs-tab" class="tab-content" style="display: none;">
+        <div class="simulation-panel">
+            <h2>📝 Admin İşlem Kaydı</h2>
+            <p>Yapılan tüm admin işlemlerinin kaydı</p>
+            
+            <!-- İşlem Kaydı Listesi -->
+            <div id="adminLogsList" style="margin-top: 20px; max-height: 600px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; padding: 15px; background: #f9f9f9;">
+                <p style="text-align: center; color: #999;">İşlem kaydı yükleniyor...</p>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Nilüfer Belediyesi - Yönetici Paneli</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="admin-script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // PDF Export Fonksiyonu
+        function exportReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Tarih bilgisi
+            const today = new Date().toLocaleDateString('tr-TR');
+            const startDate = document.getElementById('startDate')?.value || '2024-11-01';
+            const endDate = document.getElementById('endDate')?.value || '2024-11-30';
+            const simName = document.getElementById('simName')?.value || 'Simülasyon';
+            
+            // Başlık
+            doc.setFontSize(18);
+            doc.setTextColor(0, 102, 179); // Nilüfer mavi
+            doc.text('NILUFER BELEDIYESI', 105, 20, { align: 'center' });
+            
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Filo Simulasyon Raporu', 105, 30, { align: 'center' });
+            
+            doc.setFontSize(10);
+            doc.text(`Rapor Tarihi: ${today}`, 105, 38, { align: 'center' });
+            doc.text(`Simulasyon Adi: ${simName}`, 105, 44, { align: 'center' });
+            doc.text(`Donem: ${startDate} - ${endDate}`, 105, 50, { align: 'center' });
+            
+            // Çizgi
+            doc.setDrawColor(0, 102, 179);
+            doc.line(20, 55, 190, 55);
+            
+            // Tavsiye Bölümü
+            let yPos = 65;
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            
+            const recTitle = document.getElementById('recommendationTitle')?.textContent || 'TAVSIYE';
+            doc.text(recTitle, 20, yPos);
+            
+            yPos += 8;
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
+            
+            const recText = document.getElementById('recommendationText')?.textContent || '';
+            const splitText = doc.splitTextToSize(recText, 170);
+            doc.text(splitText, 20, yPos);
+            yPos += splitText.length * 6 + 5;
+            
+            // Önemli Bulgular
+            doc.setFont(undefined, 'bold');
+            doc.text('Onemli Bulgular:', 20, yPos);
+            yPos += 6;
+            doc.setFont(undefined, 'normal');
+            
+            const reasons = document.querySelectorAll('#recommendationReasons li');
+            reasons.forEach(reason => {
+                const text = doc.splitTextToSize(`- ${reason.textContent}`, 165);
+                doc.text(text, 25, yPos);
+                yPos += text.length * 5 + 2;
+            });
+            
+            yPos += 10;
+            
+            // Metrikler Tablosu
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(12);
+            doc.text('Karsilastirmali Metrikler', 20, yPos);
+            yPos += 8;
+            
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            
+            // Metrikleri çek
+            const metrics = [
+                ['Toplam Kilometre', document.getElementById('kmValue')?.textContent || '', document.getElementById('kmChange')?.textContent || ''],
+                ['Yakit Tuketimi', document.getElementById('fuelValue')?.textContent || '', document.getElementById('fuelChange')?.textContent || ''],
+                ['CO2 Emisyonu', document.getElementById('co2Value')?.textContent || '', document.getElementById('co2Change')?.textContent || ''],
+                ['Aylik Maliyet', document.getElementById('costValue')?.textContent || '', document.getElementById('costChange')?.textContent || ''],
+                ['Toplama Orani', document.getElementById('collectionRateValue')?.textContent || '', document.getElementById('collectionRateChange')?.textContent || ''],
+                ['Vatandas Memnuniyeti', document.getElementById('satisfactionValue')?.textContent || '', document.getElementById('satisfactionChange')?.textContent || '']
+            ];
+            
+            // Tablo başlıkları
+            doc.setFillColor(0, 102, 179);
+            doc.rect(20, yPos, 170, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.text('Metrik', 25, yPos + 5);
+            doc.text('Deger', 90, yPos + 5);
+            doc.text('Degisim', 140, yPos + 5);
+            yPos += 8;
+            
+            doc.setTextColor(0, 0, 0);
+            
+            // Tablo satırları
+            metrics.forEach((metric, index) => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                // Zebra striping
+                if (index % 2 === 0) {
+                    doc.setFillColor(245, 245, 245);
+                    doc.rect(20, yPos, 170, 7, 'F');
+                }
+                
+                doc.text(metric[0], 25, yPos + 5);
+                doc.text(metric[1], 90, yPos + 5);
+                doc.text(metric[2], 140, yPos + 5);
+                yPos += 7;
+            });
+            
+            // Yeni sayfa - Detaylı Karşılaştırma
+            doc.addPage();
+            yPos = 20;
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('Detayli Karsilastirma', 20, yPos);
+            yPos += 10;
+            
+            // Detaylı tablo başlıkları
+            doc.setFillColor(0, 102, 179);
+            doc.rect(20, yPos, 170, 8, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(9);
+            doc.text('Metrik', 25, yPos + 5);
+            doc.text('Mevcut', 85, yPos + 5);
+            doc.text('Simulasyon', 120, yPos + 5);
+            doc.text('Degisim', 160, yPos + 5);
+            yPos += 8;
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFont(undefined, 'normal');
+            
+            // Tablo verilerini çek
+            const tableRows = document.querySelectorAll('.comparison-table tbody tr');
+            tableRows.forEach((row, index) => {
+                if (yPos > 270) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                if (index % 2 === 0) {
+                    doc.setFillColor(245, 245, 245);
+                    doc.rect(20, yPos, 170, 7, 'F');
+                }
+                
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 4) {
+                    doc.text(cells[0].textContent.substring(0, 25), 25, yPos + 5);
+                    doc.text(cells[1].textContent, 85, yPos + 5);
+                    doc.text(cells[2].textContent, 120, yPos + 5);
+                    doc.text(cells[3].textContent, 160, yPos + 5);
+                }
+                yPos += 7;
+            });
+            
+            // Footer
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(128, 128, 128);
+                doc.text(`Sayfa ${i} / ${pageCount}`, 105, 290, { align: 'center' });
+                doc.text('Nilufer Belediyesi - Akilli Atik Yonetim Sistemi', 105, 285, { align: 'center' });
+            }
+            
+            // PDF'i indir
+            const fileName = `Simulasyon_Raporu_${simName.replace(/\s+/g, '_')}_${today.replace(/\./g, '-')}.pdf`;
+            doc.save(fileName);
+            
+            alert('✅ PDF raporu başarıyla indirildi!');
+        }
+    </script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</body>
+</html>
