@@ -1030,10 +1030,11 @@ def approve_report():
         r2 = cursor.rowcount
         print(f"  [UPDATE users] Affected rows: {r2}")
         
-        # Konteyner doluluk seviyesini güncelle
+        # Konteyner doluluk seviyesini güncelle ve KİLİT
         cursor.execute("""
             UPDATE containers 
             SET current_fill_level = ?,
+                fill_level_locked = 1,
                 last_collection_date = ?
             WHERE container_id = ?
         """, (new_fill_level, datetime.now().isoformat(), container_id))

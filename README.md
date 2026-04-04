@@ -10,6 +10,7 @@
 
 - [Proje Hakkında](#proje-hakkında)
 - [Özellikler](#özellikler)
+- [Ekran Görüntüleri](#ekran-görüntüleri)
 - [Kurulum](#kurulum)
 - [Kullanım](#kullanım)
 - [Sistem Mimarisi](#sistem-mimarisi)
@@ -79,6 +80,44 @@
 - Dolu konteynerler: Real-time güncellemesi
 - Ortalama doluluk oranı: 36.2%
 - Aylık tonaj: CSV verileri
+
+---
+
+## 🎨 Ekran Görüntüleri
+
+### 🔐 Kimlik Doğrulama
+
+| Giriş Ekranı | Kayıt Ekranı |
+|---|---|
+| ![Giriş Ekranı](screenshots/giris_ekranı.png) | ![Kayıt Ekranı](screenshots/kayıt_ekranı.png) |
+
+### 👥 Vatandaş Uygulaması
+
+| Ana Menü | Konteynerler | Liderlik |
+|---|---|---|
+| ![Ana Menü](screenshots/ana_menü.png) | ![Konteyner](screenshots/konteyner.png) | ![Liderlik](screenshots/liderlik.png) |
+
+| Bildirim 1 | Bildirim 2 | Geçmiş |
+|---|---|---|
+| ![Bildirim 1](screenshots/bildiri.png) | ![Bildirim 2](screenshots/bildiri2.png) | ![Geçmiş](screenshots/geçmiş.png) |
+
+### 🌙 Tema Seçenekleri
+
+| Açık Tema | Koyu Tema |
+|---|---|
+| ![Açık Tema](screenshots/karanlık_tema.png) | ![Koyu Tema](screenshots/admin_paneli_karanlık_tema.png) |
+
+### 🛠️ İdari Panel
+
+| Admin Paneli | Kullanıcı Yönetimi | İşlem Kaydı |
+|---|---|---|
+| ![Admin Paneli](screenshots/admin_paneli.png) | ![Kullanıcı](screenshots/kullanıcı.png) | ![İşlem Kaydı](screenshots/işlem%20kaydı.png) |
+
+### ✅ İşlemler
+
+| Onay Bekleyen | Kabul Et | Reddet / Sil | Düzenle / Ekle |
+|---|---|---|---|
+| ![Onay](screenshots/onay.png) | ![Kabul](screenshots/kabul.png) | ![Sil](screenshots/sil.png) | ![Düzenle](screenshots/düzenle.png) |
 
 ---
 
@@ -255,31 +294,9 @@ deneme/
 
 ---
 
-## 🔧 Teknik Stack
-
-- **Backend:** Flask 2.3+ | SQLite3 | scikit-learn
-- **Frontend:** HTML5 | CSS3 | JavaScript (Vanilla)
-- **ML Model:** RandomForestClassifier
-- **Depolama:** Dosya sistemi (photos/)
-
----
-
-## ⚠️ Bilinen Limitasyonlar
-
-1. ML Model versiyon uyumsuzluğu (1.3.2 vs 1.8.0) - normal çalışıyor
-2. Bazı CSV sayıları text olarak kaydedilmiş - parsing handleri var
-3. Fotoğraflar `public/photos/` klasöründe depolanıyor
-
----
-
-## 📞 İletişim & Bilgiler
-
-- **Proje:** Nilüfer Akıllı Atık Yönetimi
-- **Durum:** ✅ Production Ready
-- **Versiyon:** 1.0.0
-- **Son Güncelleme:** 05.04.2026
-
----
+## Ekibimiz
+Ahmet Said - [kullanıcı paneli düzenlemeleri]
+Abdussamet Türkoğlu - [admin paneli düzenlemeleri]
 
 **Projeyi kullan, test et ve feedback gönder!** 🚀
 

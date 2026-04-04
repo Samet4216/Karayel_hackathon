@@ -32,6 +32,18 @@ cursor = conn.cursor()
 
 print("\n📋 Creating tables...")
 
+# Veritabanı migrasyonu - fill_level_locked sütununu ekle (eğer yoksa)
+try:
+    cursor.execute("ALTER TABLE containers ADD COLUMN fill_level_locked INTEGER DEFAULT 0")
+    print("  ✓ Added fill_level_locked column to containers")
+except sqlite3.OperationalError as e:
+    if "duplicate column name" in str(e):
+        print("  ✓ Column fill_level_locked already exists")
+    else:
+        print(f"  ⚠️  Migration warning: {e}")
+except Exception as e:
+    print(f"  ⚠️  Migration note: {e}")
+
 # Neighborhoods table
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS neighborhoods (
@@ -75,6 +87,7 @@ cursor.execute("""
         longitude REAL,
         last_collection_date TEXT,
         current_fill_level REAL,
+        fill_level_locked INTEGER DEFAULT 0,
         status TEXT,
         FOREIGN KEY (neighborhood_id) REFERENCES neighborhoods(neighborhood_id)
     )
