@@ -97,6 +97,8 @@
 |---|---|---|
 | ![Ana Menü](screenshots/ana_menü.png) | ![Konteyner](screenshots/konteyner.png) | ![Liderlik](screenshots/liderlik.png) |
 
+### 👤 Bildiriler
+
 | Bildirim 1 | Bildirim 2 | Geçmiş |
 |---|---|
 | ![Bildirim 1](screenshots/bildiri.png) | ![Bildirim 2](screenshots/bildiri2.png) | 
