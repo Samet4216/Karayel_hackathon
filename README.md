@@ -111,8 +111,8 @@
 
 | Admin Paneli | Kullanıcı Yönetimi | İşlem Kaydı |
 |---|---|---|
-| ![Admin Paneli](screenshots/admin_paneli.png) | ![Geçmiş](screenshots/geçmiş.png) |
- ![Kullanıcı](screenshots/kullanıcı.png) | ![İşlem Kaydı](screenshots/işlem%20kaydı.png) | 
+| ![Admin Paneli](screenshots/admin_paneli.png ) | ![Geçmiş](screenshots/geçmiş.png) | ![Kullanıcı](screenshots/kullanıcı.png) | ![İşlem Kaydı](screenshots/işlem%20kaydı.png) | 
+
 
 ### ✅ İşlemler
 
