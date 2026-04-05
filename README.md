@@ -98,7 +98,7 @@
 | ![Ana Menü](screenshots/ana_menü.png) | ![Konteyner](screenshots/konteyner.png) | ![Liderlik](screenshots/liderlik.png) |
 
 | Bildirim 1 | Bildirim 2 | Geçmiş |
-|---|---|---|
+|---|---|
 | ![Bildirim 1](screenshots/bildiri.png) | ![Bildirim 2](screenshots/bildiri2.png) | 
 
 ### 🌙 Tema Seçenekleri
@@ -110,7 +110,7 @@
 ### 🛠️ İdari Panel
 
 | Admin Paneli | Kullanıcı Yönetimi | İşlem Kaydı |
-|---|---|---|
+|---|---|---|---|
 | ![Admin Paneli](screenshots/admin_paneli.png ) | ![Geçmiş](screenshots/geçmiş.png) | ![Kullanıcı](screenshots/kullanıcı.png) | ![İşlem Kaydı](screenshots/işlem%20kaydı.png) | 
 
 
