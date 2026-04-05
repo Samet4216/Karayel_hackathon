@@ -297,6 +297,7 @@ deneme/
 
 ## Ekibimiz
 Ahmet Said - [kullanıcı paneli düzenlemeleri]
+* [Ahmed Said](https://github.com/Ahos9)
 Abdussamet Türkoğlu - [admin paneli düzenlemeleri]
 
 **Projeyi kullan, test et ve feedback gönder!** 🚀
