@@ -7,7 +7,7 @@
         "id": 1,
         "type": "YERALTI",
         "capacity_liters": 1100,
-        "fill_level": 1.0,
+        "fill_level": 0.5,
         "status": "active"
       },
       {
@@ -21,7 +21,7 @@
         "id": 3,
         "type": "YERALTI",
         "capacity_liters": 1100,
-        "fill_level": 0.19256907259184858,
+        "fill_level": 0.68,
         "status": "active"
       },
       {

@@ -62,7 +62,7 @@ body {
 
 /* ============== HEADER ============== */
 .main-header {
-    background-color: var(--background-white);
+    background-color: #003d7a;
     border-bottom: 3px solid var(--nilufer-blue);
     padding: var(--spacing-md) 0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -97,7 +97,7 @@ body {
 .logo-text {
     font-size: 1.2rem;
     font-weight: 600;
-    color: var(--nilufer-blue);
+    color: white;
     white-space: nowrap;
 }
 

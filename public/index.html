@@ -155,7 +155,19 @@
             color: #99ccff;
         }
         body.dark-mode .stat-card {
-            background: linear-gradient(135deg, #003d7a 0%, #002251 100%);
+            background: linear-gradient(135deg, #003d7a 0%, #002251 100%) !important;
+        }
+        body.dark-mode .stat-card[style*="#dc3545"],
+        body.dark-mode .stat-card[style*="#c82333"] {
+            background: linear-gradient(135deg, #8b1d2d 0%, #6b151f 100%) !important;
+        }
+        body.dark-mode .stat-card[style*="#00A651"],
+        body.dark-mode .stat-card[style*="#008040"] {
+            background: linear-gradient(135deg, #004d2c 0%, #003d22 100%) !important;
+        }
+        body.dark-mode .stat-card[style*="#ffc107"],
+        body.dark-mode .stat-card[style*="#ff9800"] {
+            background: linear-gradient(135deg, #8b6f00 0%, #6b5500 100%) !important;
         }
         body.dark-mode .tab-btn {
             background: #383838;
